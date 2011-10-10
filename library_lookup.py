@@ -19,9 +19,11 @@ def get_goodreads_shelf(user_id='393281', shelf='to-read'):
     # then add the relevant data for each book to our list
     element = tree.find('reviews')
     for subelement in element:
-        title = strip_series(subelement.find('book').find('title').text.strip())
-        isbn = subelement.find('book').find('isbn').text
-        author = subelement.find('book').find('authors').find('author').find('name').text
+        book = subelement.find('book')
+
+        title = strip_series(book.find('title').text.strip())
+        isbn = book.find('isbn').text
+        author = book.find('authors').find('author').find('name').text
         books.append({'title':title, 'isbn':isbn, 'author':author})
 
     return books
@@ -37,12 +39,16 @@ def strip_series(title):
 
 
 def search_library(title):
-    """Searches the King County Library System eBook (Overdrive) catalogue.
+    """Searches the King County Library System eBook (Overdrive) catalog.
 
     Returns False if the book is not found.
     """
-    
-    # http://overdrive.downloads.kcls.org/0F2E027C-35D9-43DD-B841-33524FCB0AEB/10/293/en/BANGSearch.dll 
+   
+    # target URL for the form submission
+    search_url = "http://overdrive.downloads.kcls.org/"
+    search_url += "0F2E027C-35D9-43DD-B841-33524FCB0AEB/"
+    search_url += "10/293/en/BANGSearch.dll"
+
     return False
 
 
