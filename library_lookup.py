@@ -4,9 +4,8 @@ import xml.etree.ElementTree as ET
 def get_goodreads_shelf(user_id='393281', shelf='to-read'):
     """Returns a list of books from a Goodreads user's bookshelf."""
 
-    feed_url =  'http://www.goodreads.com/review/list/'
-    feed_url += user_id + '.xml?key=lABxjgPANTVFx8nAItPQ&v=2' 
-    feed_url += '&shelf=' + shelf
+    feed_url = 'http://www.goodreads.com/review/list/' + user_id + \
+        '.xml?key=lABxjgPANTVFx8nAItPQ&v=2&shelf=' + shelf
 
     # fetch the XML feed
     feed = urllib2.urlopen(feed_url)
@@ -46,9 +45,8 @@ def search_library(title):
     """
    
     # target URL for the form submission
-    search_url =  'http://overdrive.downloads.kcls.org/'
-    search_url += '0F2E027C-35D9-43DD-B841-33524FCB0AEB/'
-    search_url += '10/293/en/BANGSearch.dll'
+    search_url = 'http://overdrive.downloads.kcls.org/' + \
+        '0F2E027C-35D9-43DD-B841-33524FCB0AEB/10/293/en/BANGSearch.dll'
 
     return False
 
