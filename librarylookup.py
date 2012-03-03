@@ -1,3 +1,5 @@
+import bottlenose
+import ConfigParser
 import urllib2
 import xml.etree.ElementTree as ET
 
@@ -13,7 +15,7 @@ class Book():
         result += 'Author:\t%s\n' % self.author
         return result.encode('utf-8')
 
-    def search_library(self, title):
+    def search_library(self):
         """Searches the King County Library System eBook (Overdrive) catalog.
 
         Returns False if the book is not found.
@@ -26,15 +28,33 @@ class Book():
         return False
 
 
-    def search_amazon(self, title):
+    def search_amazon(self):
         """Searches Amazon Prime Lending Library
 
         Returns False if the book is not found.
         """
 
-        # http://www.amazon.com/s?k=prime+eligible&n=154606011
+        # read AWS details from config file
+        config = ConfigParser.RawConfigParser()
+        config.read('librarylookup.cfg')
+        access_key = config.get('Amazon Web Services', 'amazon_access_key_id')
+        secret_key = config.get('Amazon Web Services', 'amazon_secret_key')
+        assoc_tag = config.get('Amazon Web Services', 'amazon_assoc_tag')
 
-        return False
+        # connect to AWS API and fetch search results
+        amazon = bottlenose.Amazon(access_key, secret_key, assoc_tag)
+        xml_result = amazon.ItemSearch(Keywords=self.title +" Lending Library",
+            SearchIndex="Books")
+
+        # Prepare the XPath used to location TotalResults
+        # ItemSearchResponse (Root) -> Items -> TotalResults
+        namespace = '{http://webservices.amazon.com/AWSECommerceService/2011-08-01}'
+        xpath = namespace + 'Items/' + namespace + 'TotalResults'
+
+        # Find TotalResults from the XML
+        total_results = int(ET.XML(xml_result).findtext(xpath))
+
+        return total_results > 0
 
 
 class BookCollection():
@@ -46,6 +66,14 @@ class BookCollection():
         for book in self.books:
             result += '%s \n' % book
         return result
+
+    def find_title(self, title):
+        for book in self.books:
+            if book.title == title:
+                return book
+
+    def add(self, isbn, title, author):
+        self.books.append(Book(isbn, title, author))
 
     def fetch_goodreads_shelf(self, user_id='393281', shelf='to-read'):
         """Returns a list of books from a Goodreads user's bookshelf."""
@@ -80,9 +108,11 @@ class BookCollection():
 
 
 def main():
-    books = BookCollection()
-    books.fetch_goodreads_shelf()
-    print books
+    myBooks = BookCollection()
+    myBooks.fetch_goodreads_shelf()
+    myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
+    print myBooks.find_title('The Hunger Games').search_amazon()
+    # print myBooks.books[0].search_amazon()
 
 if __name__ == '__main__':
     main()
