@@ -1,5 +1,7 @@
 import bottlenose
 import ConfigParser
+import lxml.html
+import requests
 import urllib2
 import xml.etree.ElementTree as ET
 
@@ -16,7 +18,7 @@ class Book():
         return result.encode('utf-8')
 
     def search_library(self):
-        """Searches the King County Library System eBook (Overdrive) catalog.
+        """Searches the King County Library System eBook (OverDrive) catalog.
 
         Returns False if the book is not found.
         """
@@ -25,7 +27,32 @@ class Book():
         search_url = 'http://overdrive.downloads.kcls.org/' + \
             '0F2E027C-35D9-43DD-B841-33524FCB0AEB/10/293/en/BANGSearch.dll'
 
-        return False
+        # Available fields from original form:
+        # Title, Creator, Keyword, ISBN, Format=420
+        # Language, Publisher, Subject, Award
+        # PerPage=5, Sort='SortBy=Relevancy'
+
+        # build the form_data used to submit the form
+        form_data = dict(Title=self.title, Format='420', PerPage='5', Sort='SortBy=Relevancy')
+        initial_result = requests.post(search_url, data=form_data)
+
+        # fetch redirected URL for the results page
+        results_url = 'http://ebooks.kcls.org' + initial_result.headers['location']
+
+        # fetch HTML from the results page
+        final_result = requests.get(results_url)
+        html_result = final_result.content
+
+        # create list of resulting book titles
+        root = lxml.html.fromstring(html_result)
+        results = root.xpath('//table/tr/td/table/tr/td/b/a')
+
+        matching_results = 0
+        for result in results:
+            if result.text == self.title:   # Titles must match exactly
+                matching_results += 1
+
+        return matching_results > 0
 
 
     def search_amazon(self):
@@ -111,7 +138,9 @@ def main():
     myBooks = BookCollection()
     myBooks.fetch_goodreads_shelf()
     myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
-    print myBooks.find_title('The Hunger Games').search_amazon()
+    # print myBooks.find_title('The Hunger Games').search_library()
+    myBooks.add('0439023483', 'Twilight', 'Stephenie Meyer')
+    print myBooks.find_title('Twilight').search_library()
     # print myBooks.books[0].search_amazon()
 
 if __name__ == '__main__':
