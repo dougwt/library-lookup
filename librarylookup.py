@@ -94,6 +94,9 @@ class BookCollection():
             result += '%s \n' % book
         return result
 
+    def __iter__(self):
+        return iter(self.books)
+
     def find_title(self, title):
         for book in self.books:
             if book.title == title:
@@ -142,11 +145,14 @@ class BookCollection():
 def main():
     myBooks = BookCollection()
     myBooks.fetch_goodreads_shelf()
-    myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
-    print myBooks.find_title('The Hunger Games').search_amazon()
+    # myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
+    # print myBooks.find_title('The Hunger Games').search_amazon()
     # myBooks.add('0439023483', 'Twilight', 'Stephenie Meyer')
     # print myBooks.find_title('Twilight').search_library()
     # print myBooks.books[0].search_amazon()
+    print 'KCLS\tAmzn\tTitle'
+    for book in myBooks:
+        print '%s\t%s\t%s' % (book.search_library(), book.search_amazon(), book.title)
 
 if __name__ == '__main__':
     main()
