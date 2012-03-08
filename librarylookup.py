@@ -1,9 +1,9 @@
 import bottlenose
 import ConfigParser
 import lxml.html
+import lxml.etree
 import requests
 import urllib2
-import xml.etree.ElementTree as ET
 
 class Book():
     def __init__(self, isbn='', title='', author=''):
@@ -79,7 +79,7 @@ class Book():
         xpath = namespace + 'Items/' + namespace + 'TotalResults'
 
         # Find TotalResults from the XML
-        total_results = int(ET.XML(xml_result).findtext(xpath))
+        total_results = int(lxml.etree.fromstring(xml_result).findtext(xpath))
 
         return total_results > 0
 
@@ -110,7 +110,7 @@ class BookCollection():
 
         # fetch the XML feed
         feed = urllib2.urlopen(feed_url)
-        tree = ET.parse(feed)
+        tree = lxml.etree.parse(feed)
         feed.close()
 
         # crawl through the XML feed looking for each book element
@@ -138,9 +138,9 @@ def main():
     myBooks = BookCollection()
     myBooks.fetch_goodreads_shelf()
     myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
-    # print myBooks.find_title('The Hunger Games').search_library()
-    myBooks.add('0439023483', 'Twilight', 'Stephenie Meyer')
-    print myBooks.find_title('Twilight').search_library()
+    print myBooks.find_title('The Hunger Games').search_amazon()
+    # myBooks.add('0439023483', 'Twilight', 'Stephenie Meyer')
+    # print myBooks.find_title('Twilight').search_library()
     # print myBooks.books[0].search_amazon()
 
 if __name__ == '__main__':
