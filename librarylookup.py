@@ -105,8 +105,13 @@ class BookCollection():
     def fetch_goodreads_shelf(self, user_id='393281', shelf='to-read'):
         """Returns a list of books from a Goodreads user's bookshelf."""
 
+        # read Goodreads dev key from config file
+        config = ConfigParser.RawConfigParser()
+        config.read('librarylookup.cfg')
+        access_key = config.get('Goodreads', 'goodreads_access_key')
+
         feed_url = 'http://www.goodreads.com/review/list/' + user_id + \
-            '.xml?key=lABxjgPANTVFx8nAItPQ&v=2&shelf=' + shelf
+            '.xml?key=' + access_key + '&v=2&shelf=' + shelf
 
         # fetch the XML feed
         feed = urllib2.urlopen(feed_url)
