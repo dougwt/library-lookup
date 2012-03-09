@@ -6,10 +6,11 @@ import requests
 import urllib2
 
 class Book():
-    def __init__(self, isbn='', title='', author=''):
+    def __init__(self, isbn='', title='', author='', goodreads_url=''):
         self.isbn = isbn
         self.title = title
         self.author = author
+        self.goodreads_url = goodreads_url
 
     def __str__(self):
         result =  'ISBN:\t%s\n' % self.isbn
@@ -130,8 +131,9 @@ class BookCollection():
             title = self.strip_series(book.find('title').text.strip())
             isbn = book.find('isbn').text
             author = book.find('authors').find('author').find('name').text
+            link = book.find('link').text
 
-            self.books.append(Book(isbn, title, author))
+            self.books.append(Book(isbn, title, author, link))
 
     def strip_series(self, title):
         """Removes the series name from a given title.
@@ -152,7 +154,7 @@ def main():
     # print myBooks.books[0].search_amazon()
     print 'KCLS\tAmzn\tTitle'
     for book in myBooks:
-        print '%s\t%s\t%s' % (book.search_library(), book.search_amazon(), book.title)
+        print '%s\t%s\t%s\t\t%s' % (book.search_library(), book.search_amazon(), book.title, book.goodreads_url)
 
 if __name__ == '__main__':
     main()
