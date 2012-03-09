@@ -11,6 +11,8 @@ class Book():
         self.title = title
         self.author = author
         self.goodreads_url = goodreads_url
+        self.amazon_results = None
+        self.library_results = None
 
     def __str__(self):
         result =  'ISBN:\t%s\n' % self.isbn
@@ -53,7 +55,8 @@ class Book():
             if result.text == self.title:   # Titles must match exactly
                 matching_results += 1
 
-        return matching_results > 0
+        self.library_results = int(matching_results)
+        return self.library_results > 0
 
 
     def search_amazon(self):
@@ -82,7 +85,8 @@ class Book():
         # Find TotalResults from the XML
         total_results = int(lxml.etree.fromstring(xml_result).findtext(xpath))
 
-        return total_results > 0
+        self.amazon_results = int(total_results)
+        return self.amazon_results > 0
 
 
 class BookCollection():
@@ -142,6 +146,11 @@ class BookCollection():
         """
 
         return str.split(title, '(')[0]
+
+    def perform_searches(self):
+        for book in self.books:
+            book.search_amazon()
+            book.search_library()
 
 
 def main():
