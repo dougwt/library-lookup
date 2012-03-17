@@ -127,10 +127,13 @@ class BookCollection():
         feed_url = ('http://www.goodreads.com/review/list/' + user_id +
                     '.xml?key=' + access_key + '&v=2&shelf=' + shelf)
 
-        # fetch the XML feed
-        feed = urllib2.urlopen(feed_url)
-        tree = lxml.etree.parse(feed)
-        feed.close()
+        try:
+            # fetch the XML feed
+            feed = urllib2.urlopen(feed_url)
+            tree = lxml.etree.parse(feed)
+            feed.close()
+        except:
+            return False
 
         # crawl through the XML feed looking for each book element
         # then add the relevant data for each book to our list
@@ -144,6 +147,8 @@ class BookCollection():
             link = book.find('link').text
 
             self.books.append(Book(isbn, title, author, link))
+
+        return True
 
     def strip_series(self, title):
         """Removes the series name from a given title.
@@ -161,18 +166,20 @@ class BookCollection():
 
 def main():
     myBooks = BookCollection()
-    myBooks.fetch_goodreads_shelf()
-    # myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
-    # print myBooks.find_title('The Hunger Games').search_amazon()
-    # myBooks.add('0439023483', 'Twilight', 'Stephenie Meyer')
-    # print myBooks.find_title('Twilight').search_library()
-    # print myBooks.books[0].search_amazon()
-    print 'KCLS\tAmzn\tTitle'
-    for book in myBooks:
-        print '%s\t%s\t%s\t\t%s' % (book.search_library(),
-                                    book.search_amazon(),
-                                    book.title,
-                                    book.goodreads_url)
+    if (myBooks.fetch_goodreads_shelf('5182915')):
+        # myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
+        # print myBooks.find_title('The Hunger Games').search_amazon()
+        # myBooks.add('0439023483', 'Twilight', 'Stephenie Meyer')
+        # print myBooks.find_title('Twilight').search_library()
+        # print myBooks.books[0].search_amazon()
+        print 'KCLS\tAmzn\tTitle'
+        for book in myBooks:
+            print '%s\t%s\t%s\t\t%s' % (book.search_library(),
+                                        book.search_amazon(),
+                                        book.title,
+                                        book.goodreads_url)
+    else:
+        print 'Unable to retrieve goodreads shelf.'
 
 if __name__ == '__main__':
     main()
