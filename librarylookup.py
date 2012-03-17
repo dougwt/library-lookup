@@ -5,6 +5,7 @@ import lxml.etree
 import requests
 import urllib2
 
+
 class Book():
     def __init__(self, isbn='', title='', author='', goodreads_url=''):
         self.isbn = isbn
@@ -15,7 +16,7 @@ class Book():
         self.library_results = None
 
     def __str__(self):
-        result =  'ISBN:\t%s\n' % self.isbn
+        result = 'ISBN:\t%s\n' % self.isbn
         result += 'Title:\t%s\n' % self.title
         result += 'Author:\t%s\n' % self.author
         return result.encode('utf-8')
@@ -27,8 +28,9 @@ class Book():
         """
 
         # target URL for the form submission
-        search_url = 'http://overdrive.downloads.kcls.org/' + \
-            '0F2E027C-35D9-43DD-B841-33524FCB0AEB/10/293/en/BANGSearch.dll'
+        search_url = ('http://overdrive.downloads.kcls.org/'
+                      '0F2E027C-35D9-43DD-B841-33524FCB0AEB/'
+                      '10/293/en/BANGSearch.dll')
 
         # Available fields from original form:
         # Title, Creator, Keyword, ISBN, Format=420
@@ -36,11 +38,13 @@ class Book():
         # PerPage=5, Sort='SortBy=Relevancy'
 
         # build the form_data used to submit the form
-        form_data = dict(Title=self.title, Format='420', PerPage='5', Sort='SortBy=Relevancy')
+        form_data = dict(Title=self.title, Format='420', PerPage='5',
+                         Sort='SortBy=Relevancy')
         initial_result = requests.post(search_url, data=form_data)
 
         # fetch redirected URL for the results page
-        results_url = 'http://ebooks.kcls.org' + initial_result.headers['location']
+        results_url = ('http://ebooks.kcls.org' +
+                       initial_result.headers['location'])
 
         # fetch HTML from the results page
         final_result = requests.get(results_url)
@@ -58,7 +62,6 @@ class Book():
         self.library_results = int(matching_results)
         return self.library_results > 0
 
-
     def search_amazon(self):
         """Searches Amazon Prime Lending Library
 
@@ -74,12 +77,15 @@ class Book():
 
         # connect to AWS API and fetch search results
         amazon = bottlenose.Amazon(access_key, secret_key, assoc_tag)
-        xml_result = amazon.ItemSearch(Keywords=self.title +" Lending Library",
-            SearchIndex="Books")
+        xml_result = amazon.ItemSearch(
+            Keywords=self.title + " Lending Library",
+            SearchIndex="Books"
+        )
 
         # Prepare the XPath used to location TotalResults
         # ItemSearchResponse (Root) -> Items -> TotalResults
-        namespace = '{http://webservices.amazon.com/AWSECommerceService/2011-08-01}'
+        namespace = ('{http://webservices.amazon.com/'
+                     'AWSECommerceService/2011-08-01}')
         xpath = namespace + 'Items/' + namespace + 'TotalResults'
 
         # Find TotalResults from the XML
@@ -118,8 +124,8 @@ class BookCollection():
         config.read('librarylookup.cfg')
         access_key = config.get('Goodreads', 'goodreads_access_key')
 
-        feed_url = 'http://www.goodreads.com/review/list/' + user_id + \
-            '.xml?key=' + access_key + '&v=2&shelf=' + shelf
+        feed_url = ('http://www.goodreads.com/review/list/' + user_id +
+                    '.xml?key=' + access_key + '&v=2&shelf=' + shelf)
 
         # fetch the XML feed
         feed = urllib2.urlopen(feed_url)
@@ -163,7 +169,10 @@ def main():
     # print myBooks.books[0].search_amazon()
     print 'KCLS\tAmzn\tTitle'
     for book in myBooks:
-        print '%s\t%s\t%s\t\t%s' % (book.search_library(), book.search_amazon(), book.title, book.goodreads_url)
+        print '%s\t%s\t%s\t\t%s' % (book.search_library(),
+                                    book.search_amazon(),
+                                    book.title,
+                                    book.goodreads_url)
 
 if __name__ == '__main__':
     main()
