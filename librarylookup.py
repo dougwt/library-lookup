@@ -116,7 +116,8 @@ class BookCollection():
     def add(self, isbn, title, author):
         self.books.append(Book(isbn, title, author))
 
-    def fetch_goodreads_shelf(self, user_id='393281', shelf='to-read'):
+    def fetch_goodreads_shelf(self, user_id='393281', shelf='to-read',
+                              limit='100'):
         """Returns a list of books from a Goodreads user's bookshelf."""
 
         # read Goodreads dev key from config file
@@ -125,7 +126,8 @@ class BookCollection():
         access_key = config.get('Goodreads', 'goodreads_access_key')
 
         feed_url = ('http://www.goodreads.com/review/list/' + user_id +
-                    '.xml?key=' + access_key + '&v=2&shelf=' + shelf)
+                    '.xml?key=' + access_key + '&v=2&shelf=' + shelf +
+                    '&per_page=' + limit)
 
         try:
             # fetch the XML feed
