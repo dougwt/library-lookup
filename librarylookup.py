@@ -2,6 +2,7 @@ import bottlenose
 import ConfigParser
 import lxml.html
 import lxml.etree
+import os.path
 import requests
 import urllib2
 
@@ -70,7 +71,8 @@ class Book():
 
         # read AWS details from config file
         config = ConfigParser.RawConfigParser()
-        config.read('librarylookup.cfg')
+        f = os.path.abspath(os.path.dirname(__file__)) + '/librarylookup.cfg'
+        config.read(f)
         access_key = config.get('Amazon Web Services', 'amazon_access_key_id')
         secret_key = config.get('Amazon Web Services', 'amazon_secret_key')
         assoc_tag = config.get('Amazon Web Services', 'amazon_assoc_tag')
@@ -122,7 +124,8 @@ class BookCollection():
 
         # read Goodreads dev key from config file
         config = ConfigParser.RawConfigParser()
-        config.read('librarylookup.cfg')
+        f = os.path.abspath(os.path.dirname(__file__)) + '/librarylookup.cfg'
+        config.read(f)
         access_key = config.get('Goodreads', 'goodreads_access_key')
 
         feed_url = ('http://www.goodreads.com/review/list/' + user_id +
