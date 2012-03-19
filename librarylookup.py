@@ -8,10 +8,11 @@ import urllib2
 
 
 class Book():
-    def __init__(self, isbn='', title='', author='', goodreads_url=''):
+    def __init__(self, isbn='', title='', author='', avg_rating='', goodreads_url=''):
         self.isbn = isbn
         self.title = title
         self.author = author
+        self.avg_rating = avg_rating
         self.goodreads_url = goodreads_url
         self.amazon_results = None
         self.library_results = None
@@ -149,9 +150,10 @@ class BookCollection():
             title = self.strip_series(book.find('title').text.strip())
             isbn = book.find('isbn').text
             author = book.find('authors').find('author').find('name').text
+            avg_rating = book.find('average_rating').text
             link = book.find('link').text
 
-            self.books.append(Book(isbn, title, author, link))
+            self.books.append(Book(isbn, title, author, avg_rating, link))
 
         return True
 
@@ -171,7 +173,7 @@ class BookCollection():
 
 def main():
     myBooks = BookCollection()
-    if (myBooks.fetch_goodreads_shelf('5182915')):
+    if (myBooks.fetch_goodreads_shelf()):
         # myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
         # print myBooks.find_title('The Hunger Games').search_amazon()
         # myBooks.add('0439023483', 'Twilight', 'Stephenie Meyer')
@@ -182,7 +184,7 @@ def main():
             print '%s\t%s\t%s\t\t%s' % (book.search_library(),
                                         book.search_amazon(),
                                         book.title,
-                                        book.goodreads_url)
+                                        book.avg_rating)
     else:
         print 'Unable to retrieve goodreads shelf.'
 
