@@ -94,7 +94,21 @@ class Book():
         # Find TotalResults from the XML
         total_results = int(lxml.etree.fromstring(xml_result).findtext(xpath))
 
-        self.amazon_results = int(total_results)
+        matching_results = 0
+        if total_results > 0:
+            # create list of resulting book titles
+            xpath = (namespace + 'Items/' +
+                     namespace + 'Item/' +
+                     namespace + 'ItemAttributes/' +
+                     namespace + 'Title')
+            results = lxml.etree.fromstring(xml_result).findall(xpath)
+
+            for result in results:
+                # print "Comparing '%s' to '%s'" % (result.text, self.title)
+                if result.text.find(self.title) >= 0:
+                    matching_results += 1
+
+        self.amazon_results = int(matching_results)
         return self.amazon_results > 0
 
 
@@ -169,24 +183,3 @@ class BookCollection():
         for book in self.books:
             book.search_amazon()
             book.search_library()
-
-
-def main():
-    myBooks = BookCollection()
-    if (myBooks.fetch_goodreads_shelf()):
-        # myBooks.add('0439023483', 'The Hunger Games', 'Suzanne Collins')
-        # print myBooks.find_title('The Hunger Games').search_amazon()
-        # myBooks.add('0439023483', 'Twilight', 'Stephenie Meyer')
-        # print myBooks.find_title('Twilight').search_library()
-        # print myBooks.books[0].search_amazon()
-        print 'KCLS\tAmzn\tTitle'
-        for book in myBooks:
-            print '%s\t%s\t%s\t\t%s' % (book.search_library(),
-                                        book.search_amazon(),
-                                        book.title,
-                                        book.avg_rating)
-    else:
-        print 'Unable to retrieve goodreads shelf.'
-
-if __name__ == '__main__':
-    main()

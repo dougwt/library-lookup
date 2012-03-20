@@ -1,4 +1,6 @@
 librarylookup.cfg
+driver.py
+amazon.xml
 .DS_Store
 *.swp
 *.pyc
