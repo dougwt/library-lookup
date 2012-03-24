@@ -1,6 +1,16 @@
+# Project
 librarylookup.cfg
 driver.py
 amazon.xml
-.DS_Store
-*.swp
+
+# Python
 *.pyc
+
+# OSX
+.DS_Store
+
+# Sublime Text 2
+sftp-config.json
+
+# vim
+*.swp
