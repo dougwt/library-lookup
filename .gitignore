@@ -1,16 +1,3 @@
-# Project
-librarylookup.cfg
-driver.py
 amazon.xml
-
-# Python
-*.pyc
-
-# OSX
-.DS_Store
-
-# Sublime Text 2
-sftp-config.json
-
-# vim
-*.swp
+driver.py
+librarylookup.cfg
